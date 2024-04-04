@@ -1,0 +1,17 @@
+version: '3.1'
+services:
+  python_thumbnail_gen_app:
+    image: python:3.10.0
+    command: /bin/bash -c "pip install flask && pip install pillow && pip install PyYaml && cd app/ && flask --app main run --host=0.0.0.0"
+    volumes:
+      - ./app/:/app/
+    environment:
+      - FLASK_APP=main.py
+    ports:
+      - 8088:5000
+    networks:
+      - python_net
+
+networks:
+  python_net:
+    driver: bridge
