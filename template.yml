@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Stack to create a EC2 intance
+
+Resources:
+  MyS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: thumbnail-app-bucket
+
+  MyEC2Instance: 
+    Type: AWS::EC2::Instance
+    Properties: 
+      ImageId: "ami-08116b9957a259459"
+      KeyName: "keypair-testing"
+      InstanceType: "t2.micro"
+      SecurityGroups:
+      - !Ref InstanceSecurityGroup
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          # Actualizar el sistema
+          yum update -y
+          # Instalar Python 3.10.0
+          yum install -y gcc openssl-devel bzip2-devel libffi-devel wget
+          cd /usr/src
+          wget https://www.python.org/ftp/python/3.10.0/Python-3.10.0.tgz
+          tar xzf Python-3.10.0.tgz
+          cd Python-3.10.0
+          ./configure --enable-optimizations
+          make altinstall
+
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow http to client host
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 5000
+          ToPort: 5000
+          CidrIp: 0.0.0.0/0

@@ -6,12 +6,20 @@ import os
 from flask import Flask, request, render_template, send_file
 from PIL import Image
 from utils.read_config_file import YamlDataLoader
+import boto3
+from io import BytesIO
+from datetime import datetime
 
 
 app = Flask(__name__)
 yaml_data_loader = YamlDataLoader(file_path="config.yml")
 config_params = yaml_data_loader.read_yaml_file()
 app.config["UPLOAD_FOLDER"] = config_params["upload_folder"]
+
+# Configura las credenciales de AWS
+s3 = boto3.client('s3',
+                  aws_access_key_id=config_params["aws_access_key_id"],
+                  aws_secret_access_key=config_params["aws_secret_access_key"])
 
 
 def generate_thumbnail(image, size):
@@ -56,6 +64,16 @@ def generate():
         width = height = 100
     thumbnail = generate_thumbnail(image, size=(width, height))
     thumbnail.save(os.path.join(config_params["upload_folder"], config_params["filename"]))
+    
+    # Convert the img object to bytes
+    buffer = BytesIO()
+    thumbnail.save(buffer, format='JPEG')
+    buffer.seek(0)
+    
+    # Save into S3 bucket
+    bucket_name = config_params["bucket"]
+    s3_filename = f"imagen{datetime.now().strftime('%Y%m%d')}.jpeg"
+    s3.upload_fileobj(buffer, bucket_name, s3_filename)
     return render_template(config_params["result_page"], filename=config_params["filename"])
 
 
