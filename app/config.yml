@@ -2,3 +2,4 @@ upload_folder: uploads
 index_page: index.html
 result_page: result.html
 filename: thumbnail.jpg
+bucket: thumbnail-app-bucket
