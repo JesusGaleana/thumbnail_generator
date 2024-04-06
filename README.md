@@ -30,7 +30,13 @@ aws cloudformation create-stack --stack-name stack-test --template-body file://t
 PUBLIC_IP="your-public-ip"
 ```
 
-7. Execute the deploy.sh file
+7. Now, update the "config.yml" file, adding the next two lines for aws credentials
+```yaml
+aws_access_key_id: YOUR_ACCESS_KEY
+aws_secret_access_key: YOUR_SECRET_KEY
+```
+
+8. Execute the deploy.sh file
 ```bash
 ./deploy.sh
 ```
